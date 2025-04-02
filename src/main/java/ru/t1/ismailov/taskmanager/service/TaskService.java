@@ -17,7 +17,7 @@ public class TaskService {
 
     private final InMemoryTaskRepository repository;
 
-    @MeasureExecutionTime
+    @MeasureExecutionTime(logOnError = true)
     public Task createTask(Task task) {
         return repository.save(task);
     }

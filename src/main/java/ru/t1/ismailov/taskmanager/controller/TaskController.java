@@ -2,17 +2,23 @@ package ru.t1.ismailov.taskmanager.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import ru.t1.ismailov.taskmanager.annotation.LoggingRequest;
-import ru.t1.ismailov.taskmanager.annotation.TaskExceptionHandler;
 import ru.t1.ismailov.taskmanager.model.Task;
 import ru.t1.ismailov.taskmanager.service.TaskService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/tasks" )
+@RequestMapping("/tasks")
 @RequiredArgsConstructor
 @LoggingRequest
 public class TaskController {
@@ -25,19 +31,17 @@ public class TaskController {
         return service.createTask(task);
     }
 
-    @GetMapping("/{id}" )
-    @TaskExceptionHandler
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getTaskById(id));
+    @GetMapping("/{id}")
+    public Task getTaskById(@PathVariable Long id) {
+        return service.getTaskById(id);
     }
 
-    @PutMapping("/{id}" )
-    @TaskExceptionHandler
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
-        return ResponseEntity.ok(service.updateTask(id, task));
+    @PutMapping("/{id}")
+    public Task updateTask(@PathVariable Long id, @RequestBody Task task) {
+        return service.updateTask(id, task);
     }
 
-    @DeleteMapping("/{id}" )
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable Long id) {
         service.removeTask(id);

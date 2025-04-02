@@ -7,6 +7,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -17,7 +18,7 @@ import java.util.Arrays;
 @Aspect
 @Component
 @Slf4j
-public class LoggingAspect extends BaseAspect {
+public class LoggingAspect{
 
     @Before(
             "@within(ru.t1.ismailov.taskmanager.annotation.LoggingRequest) && " +
@@ -65,5 +66,13 @@ public class LoggingAspect extends BaseAspect {
             }
             throw ex;
         }
+    }
+
+    private static String getClassAndMethodName(JoinPoint jp) {
+        MethodSignature signature = (MethodSignature) jp.getSignature();
+        return "%s.%s".formatted(
+                signature.getDeclaringType().getSimpleName(),
+                signature.getName()
+        );
     }
 }
