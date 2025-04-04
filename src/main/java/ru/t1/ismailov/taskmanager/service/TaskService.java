@@ -6,7 +6,7 @@ import ru.t1.ismailov.taskmanager.annotation.MeasureExecutionTime;
 import ru.t1.ismailov.taskmanager.annotation.TaskExceptionHandler;
 import ru.t1.ismailov.taskmanager.exception.TaskNotFoundException;
 import ru.t1.ismailov.taskmanager.model.Task;
-import ru.t1.ismailov.taskmanager.repository.InMemoryTaskRepository;
+import ru.t1.ismailov.taskmanager.repository.TaskRepository;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import java.util.List;
 @TaskExceptionHandler
 public class TaskService {
 
-    private final InMemoryTaskRepository repository;
+    private final TaskRepository repository;
 
     @MeasureExecutionTime(logOnError = true)
     public Task createTask(Task task) {
@@ -26,12 +26,12 @@ public class TaskService {
         return repository.findAll();
     }
 
-    public Task getTaskById(long id) {
+    public Task getTaskById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
-    public Task updateTask(long id, Task updatedTask) {
+    public Task updateTask(Integer id, Task updatedTask) {
         Task foundTask = getTaskById(id);
 
         return repository.save(foundTask
@@ -40,7 +40,7 @@ public class TaskService {
                 .setUserId(updatedTask.getUserId()));
     }
 
-    public void removeTask(long id) {
+    public void removeTask(Integer id) {
         repository.deleteById(id);
     }
 }
