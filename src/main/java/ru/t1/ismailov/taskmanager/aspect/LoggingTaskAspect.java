@@ -18,10 +18,10 @@ import java.util.Arrays;
 @Aspect
 @Component
 @Slf4j
-public class LoggingAspect{
+public class LoggingTaskAspect {
 
     @Before(
-            "@within(ru.t1.ismailov.taskmanager.annotation.LoggingRequest) && " +
+            "@within(ru.t1.ismailov.taskmanager.annotation.LogRequest) && " +
                     "within(@org.springframework.web.bind.annotation.RestController *)"
     )
     public void logHttpRequest(JoinPoint jp) {
@@ -46,7 +46,7 @@ public class LoggingAspect{
                 result);
     }
 
-    @Around("@annotation(measure)" )
+    @Around("@annotation(measure)")
     public Object logMeasureExecutionTime(ProceedingJoinPoint jp,
                                           MeasureExecutionTime measure) throws Throwable {
         String classAndMethodName = getClassAndMethodName(jp);

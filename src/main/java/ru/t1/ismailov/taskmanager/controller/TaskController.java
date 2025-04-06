@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.t1.ismailov.taskmanager.annotation.LoggingRequest;
+import ru.t1.ismailov.taskmanager.annotation.LogRequest;
 import ru.t1.ismailov.taskmanager.model.Task;
 import ru.t1.ismailov.taskmanager.service.TaskService;
 
@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/tasks")
 @RequiredArgsConstructor
-@LoggingRequest
+@LogRequest
 public class TaskController {
 
     private final TaskService service;

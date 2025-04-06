@@ -2,10 +2,12 @@ package ru.t1.ismailov.taskmanager.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.t1.ismailov.taskmanager.annotation.MeasureExecutionTime;
 import ru.t1.ismailov.taskmanager.annotation.TaskExceptionHandler;
 import ru.t1.ismailov.taskmanager.exception.TaskNotFoundException;
 import ru.t1.ismailov.taskmanager.model.Task;
+import ru.t1.ismailov.taskmanager.model.TaskStatus;
 import ru.t1.ismailov.taskmanager.repository.TaskRepository;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.List;
 public class TaskService {
 
     private final TaskRepository repository;
+    private final TaskStatusEventPublisher eventPublisher;
 
     @MeasureExecutionTime(logOnError = true)
     public Task createTask(Task task) {
@@ -31,13 +34,20 @@ public class TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
+    @Transactional
     public Task updateTask(Integer id, Task updatedTask) {
         Task foundTask = getTaskById(id);
 
-        return repository.save(foundTask
+        Task mergedTask = foundTask
                 .setTitle(updatedTask.getTitle())
                 .setDescription(updatedTask.getDescription())
-                .setUserId(updatedTask.getUserId()));
+                .setUserId(updatedTask.getUserId())
+                .setStatus(TaskStatus.UPDATING);
+        repository.save(mergedTask);
+
+        eventPublisher.sendTaskStatusChangedEvent(mergedTask);
+
+        return mergedTask;
     }
 
     public void removeTask(Integer id) {

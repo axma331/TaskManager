@@ -1,25 +1,54 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: TaskManager
+
   datasource:
     url: jdbc:postgresql://localhost:5432/task_manager_db_t1
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update # change for validate
     show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
-server:
-  port: 8080
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      properties:
+        spring.json.trusted.packages: ru.t1.ismailov.taskmanager.event
+        enable-idempotence: true
+        transactional-id: email-notifications-transaction
+        max.in.flight.requests.per.connection: 1
+    consumer:
+      group-id: task-notification-group
+      auto-offset-reset: earliest #latest #none
+      key-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: ru.t1.ismailov.taskmanager.event
+
+#  mail:
+#    host: smtp.yandex.ru
+#    port: 587
+#    username:
+#    password:
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls.enable: true
 
 logging:
   level:
     ru.t1.ismailov.taskmanager.aspect: DEBUG
-
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"

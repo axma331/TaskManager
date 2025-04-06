@@ -23,4 +23,8 @@ public class Task {
 
     @Column(name = "user_id", nullable = false)
     private Integer userId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TaskStatus status = TaskStatus.NEW;
 }
