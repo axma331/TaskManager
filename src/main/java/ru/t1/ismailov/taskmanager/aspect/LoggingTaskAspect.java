@@ -7,11 +7,11 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import ru.t1.ismailov.taskmanager.annotation.MeasureExecutionTime;
+import ru.t1.ismailov.taskmanager.utils.AspectUtils;
 
 import java.util.Arrays;
 
@@ -32,7 +32,7 @@ public class LoggingTaskAspect {
 
         log.info("Processing HTTP {} request in {} with args: {}",
                 httpMethod,
-                getClassAndMethodName(jp),
+                AspectUtils.getClassAndMethodName(jp),
                 Arrays.toString(args));
     }
 
@@ -42,14 +42,14 @@ public class LoggingTaskAspect {
     )
     public void logAfterReturningServiceMethod(JoinPoint jp, Object result) {
         log.info("Method {} executed successfully with result: {}",
-                getClassAndMethodName(jp),
+                AspectUtils.getClassAndMethodName(jp),
                 result);
     }
 
     @Around("@annotation(measure)")
     public Object logMeasureExecutionTime(ProceedingJoinPoint jp,
                                           MeasureExecutionTime measure) throws Throwable {
-        String classAndMethodName = getClassAndMethodName(jp);
+        String classAndMethodName = AspectUtils.getClassAndMethodName(jp);
         boolean logOnError = measure.logOnError();
         long startTime = System.currentTimeMillis();
 
@@ -66,13 +66,5 @@ public class LoggingTaskAspect {
             }
             throw ex;
         }
-    }
-
-    private static String getClassAndMethodName(JoinPoint jp) {
-        MethodSignature signature = (MethodSignature) jp.getSignature();
-        return "%s.%s".formatted(
-                signature.getDeclaringType().getSimpleName(),
-                signature.getName()
-        );
     }
 }

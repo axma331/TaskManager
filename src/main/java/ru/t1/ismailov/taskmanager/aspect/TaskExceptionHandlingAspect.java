@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+import ru.t1.ismailov.taskmanager.utils.AspectUtils;
 
 @Aspect
 @Component
@@ -17,14 +17,18 @@ public class TaskExceptionHandlingAspect {
             throwing = "ex"
     )
     public void logUnexpectedExceptions(JoinPoint jp, Throwable ex) {
-        log.error("System error in {} method: {}", getClassAndMethodName(jp), ex.getMessage(), ex);
+        log.error("System error in {} method: {}", AspectUtils.getClassAndMethodName(jp), ex.getMessage(), ex);
     }
 
-    private static String getClassAndMethodName(JoinPoint jp) {
-        MethodSignature signature = (MethodSignature) jp.getSignature();
-        return "%s.%s".formatted(
-                signature.getDeclaringType().getSimpleName(),
-                signature.getName()
+    @AfterThrowing(
+            pointcut = "execution(* ru.t1.ismailov.taskmanager.service.NotificationService.sendStatusChangeEmail(..))",
+            throwing = "ex"
+    )
+    public void logEmailSendingException(JoinPoint jp, Throwable ex) {
+        log.error("Error when sending email in {} - {}",
+                AspectUtils.getClassAndMethodName(jp),
+                ex.getMessage(),
+                ex
         );
     }
 }

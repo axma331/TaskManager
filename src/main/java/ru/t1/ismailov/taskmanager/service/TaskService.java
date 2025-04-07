@@ -1,6 +1,7 @@
 package ru.t1.ismailov.taskmanager.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.t1.ismailov.taskmanager.annotation.MeasureExecutionTime;
@@ -13,12 +14,13 @@ import ru.t1.ismailov.taskmanager.repository.TaskRepository;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @TaskExceptionHandler
 public class TaskService {
 
-    private final TaskRepository repository;
-    private final TaskStatusEventPublisher eventPublisher;
+    @Autowired
+    private TaskRepository repository;
+    @Autowired
+    private TaskStatusEventPublisher eventPublisher;
 
     @MeasureExecutionTime(logOnError = true)
     public Task createTask(Task task) {
