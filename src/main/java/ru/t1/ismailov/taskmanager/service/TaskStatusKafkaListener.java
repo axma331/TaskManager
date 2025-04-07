@@ -1,7 +1,7 @@
 package ru.t1.ismailov.taskmanager.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import ru.t1.ismailov.taskmanager.annotation.Logging;
@@ -11,10 +11,10 @@ import static ru.t1.ismailov.taskmanager.config.KafkaConfig.TASK_STATUS_EVENTS_T
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TaskStatusKafkaListener {
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
     @Logging
     @KafkaListener(topics = TASK_STATUS_EVENTS_TOPIC)

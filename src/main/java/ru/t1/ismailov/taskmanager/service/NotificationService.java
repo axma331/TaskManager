@@ -1,7 +1,7 @@
 package ru.t1.ismailov.taskmanager.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,10 +10,10 @@ import ru.t1.ismailov.taskmanager.annotation.Logging;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class NotificationService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
     private String fromEmailId;

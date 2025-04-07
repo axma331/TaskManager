@@ -19,6 +19,7 @@ public class Task {
 
     @Column(nullable = false)
     private String title;
+
     private String description;
 
     @Column(name = "user_id", nullable = false)

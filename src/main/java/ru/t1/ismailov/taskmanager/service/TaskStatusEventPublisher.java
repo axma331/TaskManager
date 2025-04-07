@@ -1,6 +1,6 @@
 package ru.t1.ismailov.taskmanager.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -12,10 +12,10 @@ import ru.t1.ismailov.taskmanager.model.Task;
 import static ru.t1.ismailov.taskmanager.config.KafkaConfig.TASK_STATUS_EVENTS_TOPIC;
 
 @Service
+@RequiredArgsConstructor
 public class TaskStatusEventPublisher {
 
-    @Autowired
-    private KafkaTemplate<Integer, TaskStatusChangedEvent> kafkaTemplate;
+    private final KafkaTemplate<Integer, TaskStatusChangedEvent> kafkaTemplate;
 
     @Logging
     public SendResult<Integer, TaskStatusChangedEvent> sendTaskStatusChangedEvent(Task task) {
