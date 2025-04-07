@@ -16,7 +16,7 @@ public class KafkaConfig {
         return TopicBuilder.name(TASK_STATUS_EVENTS_TOPIC)
                 .partitions(1)
                 .replicas(1)
-                .config(TopicConfig.RETENTION_MS_CONFIG, "3_600_000")
+                .config(TopicConfig.RETENTION_MS_CONFIG, "3600000")
                 .build();
     }
 }

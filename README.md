@@ -5,21 +5,28 @@
 - **Полноценное управление задачами** через REST API (CRUD операции)
 - **Сквозное логирование** HTTP-запросов, времени выполнения методов и ошибок
 - **Автоматическая обработка исключений** с конвертацией в структурированные JSON-ответы
+- **Интеграция с Kafka** для отслеживания изменений статусов задач
+- **Отправка email-уведомлений** при изменении статуса задачи
 
 ## 📖 Описание
 
-RESTful сервис для управления задачами с расширенной системой мониторинга.  
+## 📖 Описание
+RESTful сервис для управления задачами с расширенной системой мониторинга и интеграцией с Kafka для отправки событий об изменениях статусов задач и последующей отправкой email-уведомлений об изменении статуса задачи.
+
 Базовая сущность:
 
 ```java
 
+import ru.t1.ismailov.taskmanager.model.TaskStatus;
+
 @Data
 @Accessors(chain = true)
 public class Task {
-    private Long id;
-    private String title;
-    private String description;
-    private Long userId;
+   private Long id;
+   private String title;
+   private String description;
+   private Long userId;
+   private TaskStatus status;
 }
 ```
 
@@ -29,6 +36,8 @@ public class Task {
 - **Spring AOP** для аспектно-ориентированного программирования
 - **Lombok** для сокращения boilerplate-кода
 - **SLF4J** с реализацией Logback для логирования
+- **Spring Kafka** для работы с Kafka
+- **Spring Mail** для отправки email-уведомлений
 
 ## 🌐 REST API Endpoints
 
@@ -54,10 +63,11 @@ public class Task {
 
 ### Реализованные аспекты
 
-| Аспект                        | Аннотации                               | Функционал                                |
-|-------------------------------|-----------------------------------------|-------------------------------------------|
-| `LoggingAspect`               | `@Before`, `@AfterReturning`, `@Around` | Логирование запросов, времени выполнения  |
-| `TaskExceptionHandlingAspect` | `@Around`, `@AfterThrowing`             | Обработка исключений и логирование ошибок |
+| Аспект                        | Аннотации                     | Функционал                                |
+|-------------------------------|-------------------------------|-------------------------------------------|
+| `LoggingTaskAspect`           | `@Before`, `@AfterReturning`, `@Around` | Логирование запросов, времени выполнения  |
+| `TaskExceptionHandlingAspect` | `@AfterThrowing`             | Обработка исключений и логирование ошибок |
+| `LoggingKafkaAspect`          | `@AfterReturning`, `@Around` | Логирование cобытий Kafka и NotificationService|
 
 ### Примеры логов
 
@@ -78,19 +88,16 @@ ERROR [http-nio-8080-exec-3] TaskExceptionHandlingAspect: Task not found: Task n
 ## 🚦 Запуск приложения
 
 1. Клонировать репозиторий:
-
 ```bash
   git clone https://github.com/axma331/TaskManager
 ```
 
 2. Собрать проект:
-
 ```bash
   mvn clean package
 ```
 
 3. Запустить:
-
 ```bash
   java -jar target/TaskManager-1.0.0.jar
 ```
@@ -99,7 +106,9 @@ ERROR [http-nio-8080-exec-3] TaskExceptionHandlingAspect: Task not found: Task n
 
 - **Кастомные аннотации:** `@MeasureExecutionTime`, `@LoggingRequest`, `@TaskExceptionHandler`
 - **Fluent API:** цепочки сеттеров (`task.setTitle(...).setDescription(...)`)
-- **Единая точка обработки ошибок:** аспект преобразует исключения в HTTP-ответы
+- **Единая точка обработки исключений:** аспект преобразует исключения в HTTP-ответы
+- **Интеграция с Kafka:** отслеживание изменения статусов задач с логированием метаданных
+- **Отправка email-уведомлений:** при изменении статуса задачи отправляется email уведомление.
 
 ## 📡 Примеры HTTP-запросов
 
@@ -140,3 +149,32 @@ GET http://localhost:8080/tasks
 ```http
 GET http://localhost:8080/tasks/999
 ```
+
+
+## 🔧 Изменения в функционале
+
+<details>
+  <summary>📡 Интеграция с Kafka</summary>
+
+- Настроены producer и consumer Kafka для отправки и получения событий изменения статусов задач.
+- Создан топик `tasks-status-updates-topic` для отправки сообщений.
+- Добавлены логи для успешной отправки сообщений в Kafka и обработки событий.
+- Реализован класс `TaskStatusEventPublisher` для отправки событий изменения статуса задачи в Kafka.
+- Обработчик `TaskStatusKafkaListener` для получения событий изменения статуса и отправки email-уведомлений.
+
+</details>
+
+<details>
+  <summary>✉️ Email уведомления</summary>
+
+- При изменении статуса задачи отправляется email уведомление.
+- Используется `JavaMailSender` для отправки email сообщений.
+
+</details>
+
+<details>
+  <summary>🚨 Обработка ошибок</summary>
+
+- Все ошибки при отправке email сообщений или обработке событий Kafka логируются и выводятся в системный журнал.
+
+</details>
