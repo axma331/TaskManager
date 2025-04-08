@@ -7,6 +7,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import ru.t1.ismailov.taskmanager.annotation.Logging;
+import ru.t1.ismailov.taskmanager.annotation.MailExceptionHandler;
 
 @Slf4j
 @Service
@@ -19,6 +20,7 @@ public class NotificationService {
     private String fromEmailId;
 
     @Logging
+    @MailExceptionHandler
     public SimpleMailMessage sendStatusChangeEmail(String recipient, String subject, String body) {
         var mailMessage = new SimpleMailMessage();
         mailMessage.setFrom(fromEmailId);

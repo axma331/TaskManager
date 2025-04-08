@@ -1,5 +1,6 @@
 package ru.t1.ismailov.taskmanager.aspect;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -7,6 +8,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -18,7 +20,11 @@ import java.util.Arrays;
 @Aspect
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class LoggingTaskAspect {
+
+    @Autowired
+    private final AspectUtils utils;
 
     @Before(
             "@within(ru.t1.ismailov.taskmanager.annotation.LogRequest) && " +
@@ -32,7 +38,7 @@ public class LoggingTaskAspect {
 
         log.info("Processing HTTP {} request in {} with args: {}",
                 httpMethod,
-                AspectUtils.getClassAndMethodName(jp),
+                utils.getClassAndMethodName(jp),
                 Arrays.toString(args));
     }
 
@@ -42,14 +48,14 @@ public class LoggingTaskAspect {
     )
     public void logAfterReturningServiceMethod(JoinPoint jp, Object result) {
         log.info("Method {} executed successfully with result: {}",
-                AspectUtils.getClassAndMethodName(jp),
+                utils.getClassAndMethodName(jp),
                 result);
     }
 
     @Around("@annotation(measure)")
     public Object logMeasureExecutionTime(ProceedingJoinPoint jp,
                                           MeasureExecutionTime measure) throws Throwable {
-        String classAndMethodName = AspectUtils.getClassAndMethodName(jp);
+        String classAndMethodName = utils.getClassAndMethodName(jp);
         boolean logOnError = measure.logOnError();
         long startTime = System.currentTimeMillis();
 

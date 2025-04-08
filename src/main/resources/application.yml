@@ -35,12 +35,20 @@ spring:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.value.default.type: ru.t1.ismailov.taskmanager.event.TaskStatusChangedEvent
         spring.json.trusted.packages: ru.t1.ismailov.taskmanager.event
+      max-poll-records: 5
+      enable-auto-commit: false
+    listener:
+      poll-timeout: 2000
+      ack-mode: manual
+    topics:
+      task-status-event: tasks-status-updates-topic
 
   mail:
     host: smtp.gmail.com
     port: 587
     username: i7mailov@gmail.com
     password: ${mail.password}
+    recipient: i7mailov@ya.ru
     properties:
       mail:
         smtp:

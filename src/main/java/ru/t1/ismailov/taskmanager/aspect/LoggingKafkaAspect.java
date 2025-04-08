@@ -6,11 +6,10 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 import ru.t1.ismailov.taskmanager.annotation.Logging;
-import ru.t1.ismailov.taskmanager.event.TaskStatusChangedEvent;
+import ru.t1.ismailov.taskmanager.model.KafkaEventDelivery;
 
 import java.util.Arrays;
 
@@ -22,24 +21,18 @@ public class LoggingKafkaAspect {
     @AfterReturning(
             pointcut = "execution(* ru.t1.ismailov.taskmanager.service.TaskStatusEventPublisher.sendTaskStatusChangedEvent(..))" +
                     " && @annotation(logger)",
-            returning = "result"
+            returning = "eventData"
     )
-    public void logKafkaRecordMetadataAfterReturning(JoinPoint jp, Logging logger,
-                                                     SendResult<Integer, TaskStatusChangedEvent> result) {
-        log.debug("""
-                        Message sent successfully.
-                        Kafka Record Metadata:
-                        - Topic: {}
-                        - Partition: {}
-                        - Offset: {}
-                        - Timestamp: {}
-                        - Producer record value: {}
+    public void logKafkaEventDeliveryAfterReturning(JoinPoint jp, Logging logger, KafkaEventDelivery eventData) {
+        log.info("""
+                        Message sent to Kafka.
+                        - Topic name: {}
+                        - Topic key: {}
+                        - Topic value: {}
                         """,
-                result.getRecordMetadata().topic(),
-                result.getRecordMetadata().partition(),
-                result.getRecordMetadata().offset(),
-                result.getRecordMetadata().timestamp(),
-                result.getProducerRecord().value()
+                eventData.topic(),
+                eventData.payload().taskId(),
+                eventData.payload().newStatus()
         );
     }
 
