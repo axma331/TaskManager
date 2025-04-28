@@ -26,9 +26,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
 
-@ActiveProfiles("test")
 @EnableKafkaTestContainer
-@SpringBootTest
 class TaskStatusEventPublisherITest {
 
     @Autowired

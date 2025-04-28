@@ -20,7 +20,8 @@ import java.time.Duration;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
 @EnableKafkaTestContainer

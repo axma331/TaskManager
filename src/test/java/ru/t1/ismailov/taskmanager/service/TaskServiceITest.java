@@ -3,9 +3,9 @@ package ru.t1.ismailov.taskmanager.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.jdbc.Sql;
 import ru.t1.ismailov.taskmanager.dto.TaskRequestDto;
 import ru.t1.ismailov.taskmanager.dto.TaskResponseDto;
@@ -13,26 +13,18 @@ import ru.t1.ismailov.taskmanager.exception.TaskNotFoundException;
 import ru.t1.ismailov.taskmanager.kafka.EnableKafkaTestContainer;
 import ru.t1.ismailov.taskmanager.model.Task;
 import ru.t1.ismailov.taskmanager.model.TaskStatus;
-import ru.t1.ismailov.taskmanager.repository.TaskRepository;
-import ru.t1.ismailov.taskmanager.utils.TaskMapper;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
-@ActiveProfiles("test")
-@SpringBootTest
 @EnableKafkaTestContainer
-class TaskServiceSpringTest {
+class TaskServiceITest {
 
     @Autowired
-    private TaskRepository repository;
-    @Autowired
-    private TaskStatusEventPublisher publisher;
-    @Autowired
-    private TaskStatusKafkaListener listener;
-    @Autowired
-    private TaskMapper taskMapper;
-    @Autowired
     private TaskService service;
+
+    @MockitoSpyBean
+    private TaskStatusEventPublisher publisher;
 
 
     @Test
@@ -61,6 +53,7 @@ class TaskServiceSpringTest {
     @DisplayName("updateTask — при смене статуса вызывает отправку события через publisher")
     @Sql(scripts = "classpath:fill_users_for_update_test.sql", executionPhase = BEFORE_TEST_METHOD)
     void updateTask_whenStatusChanged_thenCallPublisher() {
+
         Integer id = 1;
         var updatedDto = new TaskRequestDto(null, "new desc_1", null, null);
         var expectedDto = new TaskRequestDto("title_1", "new desc_1", 1, TaskStatus.UPDATING);
@@ -72,14 +65,24 @@ class TaskServiceSpringTest {
         Assertions.assertEquals(returnDto.description(), expectedDto.description());
         Assertions.assertEquals(returnDto.userId(), expectedDto.userId());
         Assertions.assertEquals(returnDto.status(), expectedDto.status());
+
+        Mockito.verify(publisher).sendTaskStatusChangedEvent(
+                Mockito.argThat(task -> task.getStatus() == TaskStatus.UPDATING)
+        );
     }
 
     @Test
-    @DisplayName("updateTask — без смены статуса не вызывает publisher")
+    @DisplayName("updateTask — если обновляемой сущности нет или она уже со статусом UPDATING, то publisher не вызывается")
+    @Sql(scripts = "classpath:fill_users_for_update_test.sql", executionPhase = BEFORE_TEST_METHOD)
     void updateTask_whenStatusNotChanged_thenDoNotCallPublisher() {
-        Integer id = 1;
         var updatedDto = new TaskRequestDto("new title", null, null, null);
 
-        service.updateTask(id, updatedDto);
+        Assertions.assertThrows(TaskNotFoundException.class,
+                () -> service.updateTask(99, updatedDto));
+
+        service.updateTask(2, updatedDto);
+
+        Mockito.verify(publisher, Mockito.never()).sendTaskStatusChangedEvent(any());
+
     }
 }

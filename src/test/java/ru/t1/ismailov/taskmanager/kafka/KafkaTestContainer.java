@@ -1,16 +1,12 @@
 package ru.t1.ismailov.taskmanager.kafka;
 
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
-@ActiveProfiles("test")
-@SpringBootTest
-public final class KafkaTestContainer {
+public abstract class KafkaTestContainer {
 
     public static final String TOPIC_NAME = "tasks-status-updates-topic-test";
 
@@ -24,11 +20,7 @@ public final class KafkaTestContainer {
         KAFKA.start();
     }
 
-    private KafkaTestContainer() {
-    }
-
-    public static class Initializer
-            implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
         @Override
         public void initialize(ConfigurableApplicationContext context) {
